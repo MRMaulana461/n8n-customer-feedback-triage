@@ -1,0 +1,6 @@
+@"
+.env
+.n8n/
+node_modules/
+*.log
+"@ | Out-File -Encoding utf8 .gitignore

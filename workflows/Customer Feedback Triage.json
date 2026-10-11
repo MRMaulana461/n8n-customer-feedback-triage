@@ -1,0 +1,406 @@
+{
+  "name": "Customer Feedback Triage",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fcc5e09a-5522-4772-9a25-db5a0c66fe75",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pesan = [\n  { id: 1, nama: \"Budi Santoso\", pesan: \"Mobil saya baru servis berkala kemarin, tapi pagi ini rem terasa blong dan lampu indikator ABS menyala. Tolong segera dicek, saya takut dipakai jalan.\" },\n  { id: 2, nama: \"Siti Rahma\", pesan: \"Saya mau tanya harga Avanza terbaru dan simulasi cicilan DP 20% tenor 5 tahun. Ada promo bulan ini?\" },\n  { id: 3, nama: \"Agus Wijaya\", pesan: \"Terima kasih mas Rudi di bagian service, pelayanannya cepat dan ramah. Mobil selesai lebih awal dari jadwal.\" },\n  { id: 4, nama: \"Dewi Lestari\", pesan: \"Sudah 3 minggu pesan Veloz tapi belum ada kabar kapan unitnya datang. Setiap ditelepon dijawab nanti dikabari. Kecewa sekali.\" },\n  { id: 5, nama: \"Rizky Pratama\", pesan: \"Apakah dealer buka hari Minggu? Saya mau test drive Innova Zenix.\" },\n  { id: 6, nama: \"Maya Putri\", pesan: \"AC mobil saya masih tidak dingin padahal sudah diservis dua kali untuk masalah yang sama. Biaya servisnya juga tidak murah.\" },\n  { id: 7, nama: \"Hendra Gunawan\", pesan: \"Mantap pelayanannya, salesnya menjelaskan detail dan tidak memaksa. Akhirnya saya ambil Yaris Cross.\" },\n  { id: 8, nama: \"Fitri Handayani\", pesan: \"Tolong kirim invoice servis tanggal 3 kemarin ke email saya, belum saya terima.\" },\n  { id: 9, nama: \"Doni Saputra\", pesan: \"Mesin mobil saya mati mendadak di tol setelah keluar dari bengkel kalian tadi siang. Sekarang saya menunggu derek. Mohon tanggung jawabnya!!\" },\n  { id: 10, nama: \"Lina Marlina\", pesan: \"Mau tanya, kalau trade-in Calya tahun 2018 harganya kira-kira berapa ya?\" },\n  { id: 11, nama: \"Taufik Hidayat\", pesan: \"Ruang tunggu bengkelnya bagus dan wifinya kencang, tapi kopinya kurang enak hehe. Overall puas.\" },\n  { id: 12, nama: \"Ratna Sari\", pesan: \"Saya dapat telepon dari nomor tidak dikenal mengaku dari dealer, minta transfer uang muka ke rekening pribadi. Apa ini benar?\" },\n  { id: 13, nama: \"Eko Prasetyo\", pesan: \"Servis 10.000 km kemarin kok biayanya Rp 1,8 juta? Sebelumnya cuma 900 ribu. Mohon rincian.\" },\n  { id: 14, nama: \"Anisa Rahmawati\", pesan: \"Halo, ada pilihan warna baru untuk Raize? Dan bisa indent online?\" },\n  { id: 15, nama: \"Joko Susilo\", pesan: \"Pelayanan lambat banget, nunggu 4 jam untuk servis ringan padahal sudah booking. Ga lagi deh.\" },\n  { id: 16, nama: \"Kevin Tanoto\", pesan: \"Thanks ya, tapi stiker di kaca belakang tolong diganti karena salah tempel. Selain itu bagus.\" },\n  { id: 17, nama: \"Wulan Sari\", pesan: \"asdfgh test\" },\n  { id: 18, nama: \"Bambang Irawan\", pesan: \"Mobil saya mengeluarkan bau bensin yang kuat setelah ganti fuel pump di bengkel kalian. Saya takut terjadi kebakaran, tolong dihubungi segera.\" }\n];\n\nreturn pesan.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "12552a87-2893-4d28-8dbe-95d8e2f0551c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Kamu adalah asisten customer service dealer mobil Toyota. Analisis pesan pelanggan berikut.\n\nPesan: {{ $json.pesan }}\n\nBalas HANYA dengan JSON valid, tanpa teks lain dan tanpa markdown, dengan format persis:\n{\"category\": \"...\", \"sentiment\": \"...\", \"urgency\": \"...\", \"summary\": \"...\", \"draft_reply\": \"...\"}\n\nAturan:\n- category: salah satu dari \"service_complaint\", \"sales_inquiry\", \"praise\", \"other\"\n- sentiment: \"positive\", \"neutral\", atau \"negative\"\n- urgency: \"low\", \"medium\", atau \"high\". Pakai \"high\" jika ada risiko keselamatan, indikasi penipuan, atau pelanggan sangat marah.\n- summary: satu kalimat bahasa Indonesia\n- draft_reply: balasan sopan 2-3 kalimat bahasa Indonesia",
+        "batching": {
+          "batchSize": 1,
+          "delayBetweenBatches": 20000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        0
+      ],
+      "id": "9c21509c-b84c-4117-beb7-755678a36343",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "model": "=openai/gpt-oss-20b",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        208
+      ],
+      "id": "a349f287-9386-4b49-8065-e5afb9a317e7",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "REPLACE_ME",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "87fa3fc4-0212-455a-a6d0-2ff6bcb49cd9",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const original = $('Code in JavaScript').item.json;\nconst raw = ($json.text || \"\").replace(/```json|```/g, \"\").trim();\n\ntry {\n  const p = JSON.parse(raw);\n  return { json: {\n    id: original.id,\n    nama: original.nama,\n    pesan: original.pesan,\n    category: p.category,\n    sentiment: p.sentiment,\n    urgency: p.urgency,\n    summary: p.summary,\n    draft_reply: p.draft_reply,\n    parse_ok: true\n  }};\n} catch (e) {\n  return { json: {\n    id: original.id,\n    nama: original.nama,\n    pesan: original.pesan,\n    category: \"unknown\",\n    sentiment: \"unknown\",\n    urgency: \"medium\",\n    summary: \"\",\n    draft_reply: \"\",\n    parse_ok: false,\n    raw_output: raw\n  }};\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -16
+      ],
+      "id": "5df9b5c5-2827-413a-a94a-743a07a76ad7",
+      "name": "Parse LLM Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f3d07a3b-2c95-4693-8537-dc812704e4be",
+              "leftValue": "={{ $json.urgency }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        48
+      ],
+      "id": "b66cd7b2-dc09-4b5d-9224-12d21e421c72",
+      "name": "Urgency High?"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=🚨 URGENT - Customer Feedback\nNama: {{ $json.nama }}\nKategori: {{ $json.category }}\nRingkasan: {{ $json.summary }}\nPesan: {{ $json.pesan }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "ba61eccf-fa68-4e2b-ba21-ecfe033518c4",
+      "name": "Send a text message",
+      "webhookId": "825058f5-21e3-429a-a803-cdd61e33d43a",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_ME",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Feedback Triage",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10K1nL3RyTruE33YCbS5mJFkratEH3V9_bGRdMrpfIDs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "triage_results",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10K1nL3RyTruE33YCbS5mJFkratEH3V9_bGRdMrpfIDs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nama",
+              "displayName": "nama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pesan",
+              "displayName": "pesan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sentiment",
+              "displayName": "sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "draft_reply",
+              "displayName": "draft_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "parse_ok",
+              "displayName": "parse_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "raw_output",
+              "displayName": "raw_output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        -176
+      ],
+      "id": "fadaa072-367e-414e-8228-57cd1682ea60",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_ME",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Output": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Urgency High?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Urgency High?": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "54d85fe9-0574-4dae-b7b9-05769b2cbfe8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REMOVED"
+  },
+  "nodeGroups": [],
+  "id": "lQtemWq5WU0l6X3A",
+  "tags": []
+}
